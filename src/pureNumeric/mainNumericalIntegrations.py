@@ -8,8 +8,8 @@ from functionsPsiRho import psiFunc, psiSqFunc, trRho1Red, trRho1RedSq, rho1Red
 from functionsPsiRho import GroundStateWavefunction
 
 if __name__ == '__main__':
-    a = 0.0
-    b = 1.0
+    a = 1.0
+    b = -4.0
 
     if a == 0.0:
         xScale = np.sqrt(2.0/3.0*b) 
