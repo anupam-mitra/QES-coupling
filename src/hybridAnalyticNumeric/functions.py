@@ -43,7 +43,6 @@ def gFunc(x1, x1p, a, b):
     expFactor = 1.0
     expFactor = np.exp(u2_32a)
     
-    
     g = np.pi * np.sqrt(-u/2/a) * expFactor * (besselTermP + besselTermM)
 
     return g
