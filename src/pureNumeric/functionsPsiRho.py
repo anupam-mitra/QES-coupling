@@ -78,7 +78,6 @@ class GroundStateWavefunction:
 
         self._normalizationFactor_ = 1/np.sqrt(self._integralEst_)
 
-
     def __call__(self, x1, x2):
         """
         Returns the value of the wavefunction evaluated at
