@@ -6,7 +6,7 @@ import functions
 if __name__ == '__main__':
 
     a = 1.0
-    b = -1.0
+    b = -28.0
 
     numPoints = 256
 
@@ -19,11 +19,6 @@ if __name__ == '__main__':
     for ix, x in enumerate(xArray):
         fgArray[ix] = functions.fgCombinedFunc(x, x, a, b)
         uArray[ix] = functions.uFunc(x, x, a, b)
-        
-    #fgArray[np.isnan(fgArray)] = -1
-
-    print("xArray = %s" % (xArray,))
-    print("fgArray = %s" % (fgArray,))
     
     fig, (axU, axU2, axFG) = plt.subplots(3, 1, constrained_layout=True)
 
