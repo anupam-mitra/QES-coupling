@@ -199,7 +199,7 @@ class ReducedDensityOperator:
         Primed position coordinate of the first oscillator
         """
 
-        def integrandFunc(x2, x2p, x1, x1p):
+        def integrandFunc(x2, x1, x1p):
             """
             Evaluates a diagonal element of the squared reduced density
             operator along coordinates of the second oscillator
@@ -221,7 +221,7 @@ class ReducedDensityOperator:
 
         rho1ElementEst, rho1ElementErr = \
             scipy.integrate.quad(
-                integrand,
+                integrandFunc,
                 -self.fullWavefunction._xBound_, self.fullWavefunction._xBound_,
                 args=(x1, x1p))
 
@@ -367,7 +367,7 @@ def trRho1Red(a, b, flagUseOld=False):
         rhoObject = WavefunctionDensityOperator(psiObject)
         rho1RedObject = ReducedDensityOperator(rhoObject)
 
-        def rho1RedSqDiagonal(x1):
+        def rho1RedDiagonal(x1):
             """
             Evaluates a diagonal element of the squared reduced density operator
             along coordinates of the second oscillator
@@ -378,7 +378,7 @@ def trRho1Red(a, b, flagUseOld=False):
             Position coordinate of the first oscillator
             """
     
-            rhoElementEst, rhoElementErr = rho1RedObjec.element(x1, x1)
+            rhoElementEst, rhoElementErr = rho1RedObject.element(x1, x1)
     
             return rhoElementEst
     
