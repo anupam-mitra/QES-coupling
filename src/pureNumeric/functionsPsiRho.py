@@ -321,7 +321,7 @@ def rho1Red(x1, x1p, a, b):
     return rho1ElementEst, rho1ElementErr
 
 
-def trRho1Red(a, b):
+def trRho1Red(a, b, flagUseOld=False):
     """
     Evaluates an element of the reduced density operator
     along coordinates of the first oscillator
