@@ -341,26 +341,50 @@ def trRho1Red(a, b):
     Coefficient b
     """
 
-    psiObject = GroundStateWavefunction(a, b)
+    if flagUseOld:
+        psiObject = GroundStateWavefunction(a, b)
+    
+        def rho1RedDiagonal(x1):
+            """
+            Evaluates a diagonal element of the reduced density operator
+            along coordinates of the second oscillator
+    
+            Parameters
+            ----------
+            x1: float
+            Position coordinate of the first oscillator
+            """
+    
+            rhoElementEst, rhoElementErr = rho1Red(x1, x1, a, b)
+    
+            return rhoElementEst
+    
+        rho1TrEst, rho1TrErr = scipy.integrate.quad(
+            rho1RedDiagonal, -psiObject._xBound_, psiObject._xBound_,
+            )
+    else:
+        psiObject = GroundStateWavefunction(a, b)
+        rhoObject = WavefunctionDensityOperator(psiObject)
+        rho1RedObject = ReducedDensityOperator(rhoObject)
 
-    def rho1RedDiagonal(x1):
-        """
-        Evaluates a diagonal element of the reduced density operator
-        along coordinates of the second oscillator
-
-        Parameters
-        ----------
-        x1: float
-        Position coordinate of the first oscillator
-        """
-
-        rhoElementEst, rhoElementErr = rho1Red(x1, x1, a, b)
-
-        return rhoElementEst
-
-    rho1TrEst, rho1TrErr = scipy.integrate.quad(
-        rho1RedDiagonal, -psiObject._xBound_, psiObject._xBound_,
-        )
+        def rho1RedSqDiagonal(x1):
+            """
+            Evaluates a diagonal element of the squared reduced density operator
+            along coordinates of the second oscillator
+    
+            Parameters
+            ----------
+            x1: float
+            Position coordinate of the first oscillator
+            """
+    
+            rhoElementEst, rhoElementErr = rho1RedObjec.element(x1, x1)
+    
+            return rhoElementEst
+    
+        rho1TrEst, rho1TrErr = scipy.integrate.quad(
+            rho1RedDiagonal, -psiObject._xBound_, psiObject._xBound_,
+            )
 
     return rho1TrEst, rho1TrErr
 
