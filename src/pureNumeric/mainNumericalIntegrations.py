@@ -11,7 +11,10 @@ if __name__ == '__main__':
     a = 0.0
     b = 1.0
 
-    xBound = b #np.sqrt(2*abs(b)/3/a)
+    if a == 0.0:
+        xBound = np.sqrt(2.0/3.0*b) 
+    else:
+        xBound = np.sqrt(2.0*abs(b)/3.0/a)
         
     print("a = {0}, b = {1}".format(a, b))
 
