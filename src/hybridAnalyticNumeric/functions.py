@@ -70,7 +70,7 @@ def rhoPreFacs(x1, x1p, a, b, a4):
 
     return pf
 
-def trPiece1(a, b, a4, infinity_approx):
+def trPiece1(a, b, a4, infinityApprox):
 
     def integrandFunc(x1, a, b, a4):
         integrand = \
@@ -82,13 +82,13 @@ def trPiece1(a, b, a4, infinity_approx):
     integralNegEst, integralNegErr = \
         scipy.integrate.quad(
             integrandFunc,
-            -infinity_approx, -np.sqrt(-2*b/(3*a)),
+            -infinityApprox, -np.sqrt(-2*b/(3*a)),
             args=(a, b, a4))
     
     integralPosEst, integralPosErr = \
         scipy.integrate.quad(
             integrandFunc,
-            np.sqrt(-2*b/(3*a)), infinity_approx,
+            np.sqrt(-2*b/(3*a)), infinityApprox,
             args=(a, b, a4))
 
     trEst = integralNegEst + integralPosEst
@@ -117,7 +117,7 @@ def trPiece2(a, b, a4):
     return trEst, trErr
 ################################################################################
 ################################################################################
-def purityPiece1(a, b, a4, infinity_approx):
+def purityPiece1(a, b, a4, infinityApprox):
 
     def integrandFunc(x1, x1p, a, b):
 
@@ -132,13 +132,13 @@ def purityPiece1(a, b, a4, infinity_approx):
     purityNegEst, purityNegErr = \
         scipy.integrate.nquad(
         integrandFunc,
-        ((-infinity_approx, -xBound), (-infinity_approx, xBound)),
+        ((-infinityApprox, -xBound), (-infinityApprox, xBound)),
         args=(a, b, a4))
 
     purityPosEst, purityPosErr = \
         scipy.integrate.nquad(
         integrandFunc,
-        ((xBound, infinity_approx), (xBound, infinity_approx)),
+        ((xBound, infinityApprox), (xBound, infinityApprox)),
         args=(a, b, a4))
 
     purityEst = purityPosEst + purityNegEst
@@ -146,7 +146,7 @@ def purityPiece1(a, b, a4, infinity_approx):
 
     return purityEst, purityErr
 
-def purityPiece2(a, b, a4, infinity_approx):
+def purityPiece2(a, b, a4, infinityApprox):
 
     def integrandFunc(x1, x1p, a, b):
 
