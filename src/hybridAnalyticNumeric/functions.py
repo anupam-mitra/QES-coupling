@@ -45,9 +45,11 @@ def fFunc(x1, x1p, a, b):
     besselTerm = scipy.special.kv(0.25, u2_32a)
     logging.debug("expFactor = {0}, besselTerm = {1}".format(expFactor, besselTerm))
     
-    f = np.sqrt(u/a) * expFactor * besselTerm 
+    f = np.sqrt(abs(u/a)) * expFactor * besselTerm 
     if np.isnan(f):
-        f = np.sqrt(u/a) * scipy.special.kve(0.25, u2_32a)
+        besselTerm = scipy.special.kve(0.25, u2_32a)
+        logging.debug("besselTerm = {0}".format(besselTerm))
+        f = np.sqrt(abs(u/a)) * besselTerm
     logging.debug("f = {0}".format(f))
 
     return f
@@ -95,37 +97,23 @@ def rhoPreFacs(x1, x1p, a, b, a4):
     
     logging.debug("x1 = {0}, x1p = {1}, a = {2}, b = {3}, a4 = {4}".format(x1, x1p, a, b, a4))
     
-    if abs(a4) <= zeroApprox:
-        logA4 = np.log(a4)
-        logExpFactor = -0.5 * b * (x1**2 + x1p**2) - 0.125 * a * (x1**4 + x1p**4)
-        logPreFactor = logA4 + logExpFactor
-
-        preFactor = 0.5 * np.exp(logPreFactor)
-        logging.debug("preFactor = {0}".format(preFactor))
-    else:
-        expFactor =  np.exp(-0.5 * b * (x1**2 + x1p**2) - 0.125 * a * (x1**4 + x1p**4))
-        preFactor = 0.5 * a4 * expFactor
-        logging.debug("preFactor = {0}, expFactor={1}".format(preFactor, expFactor))
+    expFactor =  np.exp(-0.5 * b * (x1**2 + x1p**2) - 0.125 * a * (x1**4 + x1p**4))
+    preFactor = 0.5 * a4 * expFactor
+    logging.debug("preFactor = {0}, expFactor={1}".format(preFactor, expFactor))
 
     return preFactor
 
 def trPiece1(a, b, a4, infinityApprox):
 
     def integrandFunc(x1, a, b, a4):
-        logging.debug("x1 = {0}, a = {1}, b = {2}, a4 = {3}".format(x1, a, b, a4))
-        integrand = \
-            rhoPreFacs(x1, x1, a, b, a4) * \
-            fFunc(x1, x1, a, b)
-        logging.debug("integrand = {0}".format(integrand))
-        if np.isnan(integrand):
-            logIntegrand = \
-                    np.log(rhoPreFacs(x1, x1, a, b, a4)) + \
-                    np.log(fFunc(x1, x1, a, b))
-            integrand = np.exp(logIntegrand)
-            logging.debug("Updated to integrand = {0}".format(integrand))
-
+        if x1**2 < -2/3*b/a:
+            integrand = 0.0
+        else:
+            integrand = \
+                rhoPreFacs(x1, x1, a, b, a4) * \
+                fFunc(x1, x1, a, b)
         return integrand
-
+    
     integralNegEst, integralNegErr = \
         scipy.integrate.quad(
             integrandFunc,
@@ -146,20 +134,15 @@ def trPiece1(a, b, a4, infinityApprox):
 def trPiece2(a, b, a4):
 
     def integrandFunc(x1, a, b, a4):
-        logging.debug("x1 = {0}, a = {1}, b = {2}, a4 = {3}".format(x1, a, b, a4))
-        integrand = \
-            rhoPreFacs(x1, x1, a, b, a4) * \
-            gFunc(x1, x1, a, b)
-        logging.debug("integrand = {0}".format(integrand))
-        if np.isnan(integrand):
-            logIntegrand = \
-                    np.log(rhoPreFacs(x1, x1, a, b, a4)) + \
-                    np.log(gFunc(x1, x1, a, b))
-            integrand = np.exp(logIntegrand)
-            logging.debug("Updated to integrand = {0}".format(integrand))
 
+        if x1**2 > -2/3*b/a:
+            integrand = 0.0
+        else:
+            integrand = \
+                rhoPreFacs(x1, x1, a, b, a4) * \
+                gFunc(x1, x1, a, b)
         return integrand
-
+    
     integralEst, integralErr = \
         scipy.integrate.quad(
             integrandFunc,
@@ -174,72 +157,50 @@ def trPiece2(a, b, a4):
 ################################################################################
 def purityPiece1(a, b, a4, infinityApprox):
 
+    xBound = np.sqrt(-4/3*b/a)
+
     def integrandFunc(x1, x1p, a, b, a4):
 
-        integrand = \
-            rhoPreFacs(x1, x1p, a, b, a4)**2 * \
-            fFunc(x1, x1p, a, b)**2
+        if (x1**2 + x1p**2) < xBound**2:
+            integrand = 0.0
+        else:
+            integrand = \
+                rhoPreFacs(x1, x1p, a, b, a4)**2 * \
+                fFunc(x1, x1p, a, b)**2
         
         return integrand
     
-    def upperBoundFunc(x1p, a, b):
-
-        bound = -np.sqrt(-4/3 * b/a - x1p**2)
-        return bound
-
-    def lowerBoundFunc(x1p, a, b):
-
-        bound = np.sqrt(-4/3 * b/a - x1p**2)
-        return bound
-
-    xBound = np.sqrt(-4/3*b/a)
-    
-    purityNegEst, purityNegErr = \
+    purityEst, purityErr = \
         scipy.integrate.dblquad(
         integrandFunc,
-        -infinityApprox, -xBound,
-        -infinityApprox, upperBoundFunc,
+        -infinityApprox, infinityApprox,
+        -infinityApprox, infinityApprox,
         args=(a, b, a4))
 
-    purityPosEst, purityPosErr = \
-        scipy.integrate.dblquad(
-        integrandFunc,
-        xBound, infinityApprox,
-        lowerBoundFunc, infinityApprox,
-        args=(a, b, a4))
-
-    purityEst = purityPosEst + purityNegEst
-    purityErr = np.sqrt(purityPosErr**2 + purityNegErr**2)
+    logging.info("purity = {0} +- {1}".format(purityEst, purityErr))
 
     return purityEst, purityErr
 
-def purityPiece2(a, b, a4, infinityApprox):
-
-    def integrandFunc(x1p, a, b, a4):
-
-        integrand = \
-            rhoPreFacs(x1, x1p, a, b, a4)**2 * \
-            gFunc(x1, x1p, a, b)**2
-        
-        return integrand
-
-    def upperBoundFunc(x1p, a, b):
-
-        bound = np.sqrt(-4/3 * b/a - x1p**2)
-        return bound
-
-    def lowerBoundFunc(x1p, a, b):
-
-        bound = -np.sqrt(-4/3 * b/a - x1p**2)
-        return bound
+def purityPiece2(a, b, a4):
 
     xBound = np.sqrt(-4/3*b/a)
+        
+    def integrandFunc(x1, x1p, a, b, a4):
+
+        if (x1**2 + x1p**2) > xBound**2:
+            integrand = 0.0
+        else:
+            integrand = \
+                rhoPreFacs(x1, x1p, a, b, a4)**2 * \
+                gFunc(x1, x1p, a, b)**2
+        
+        return integrand
     
     purityEst, purityErr = \
         scipy.integrate.dblquad(
         integrandFunc,
         -xBound, +xBound,
-        lowerBoundFunc, upperBoundFunc,
+        -xBound, +xBound, 
         args=(a, b, a4))
 
     return purityEst, purityErr
