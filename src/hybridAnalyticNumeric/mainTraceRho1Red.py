@@ -7,9 +7,11 @@ import matplotlib.pyplot as plt
 import logging
 
 from functions import \
-        gFunc, fFunc, trPiece1, trPiece2, normbNeg00, rhoPreFacs, a4bNegFunc
+        gFunc, fFunc, normbNeg00, rhoPreFacs, a4bNegFunc, \
+        trPiece1, trPiece2, \
+        purityPiece1, purityPiece2
 
-logging.basicConfig(format="%(asctime)s: %(levelname)s: %(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s: %(levelname)s: %(message)s", level=logging.INFO)
 
 ################################################################################
 if __name__ == '__main__':
@@ -37,18 +39,18 @@ if __name__ == '__main__':
     purityEstList = []
     purityErrList = []
 
-    for i in range(0, 67):
+    for i in range(0, 141):
 
         b2idpiov4 = -(i + 1) * 0.25
         logging.info("Begin analysis for b = {0}".format(b2idpiov4))
 
         if abs(b2idpiov4/a2idpiov4) < 1:
             INF_APPROX = \
-                 3*np.sqrt(3/2*abs(a2idpiov4/b2idpiov4))
+                 4*np.sqrt(3/2*abs(a2idpiov4/b2idpiov4))
 
         else:
             INF_APPROX = \
-                 3*np.sqrt(2/3*abs(b2idpiov4/a2idpiov4))
+                 4*np.sqrt(2/3*abs(b2idpiov4/a2idpiov4))
 
         if b2idpiov4 < 0:
             norm = normbNeg00(a2idpiov4, b2idpiov4)
@@ -77,10 +79,10 @@ if __name__ == '__main__':
         logging.info("trRhoRed = %g +- %g" % (trRhoRedEst, trRhoRedErr))
 
         purityPiece1Est, purityPiece1Err = \
-            trPiece1(a2idpiov4, b2idpiov4, a4, INF_APPROX)
+            purityPiece1(a2idpiov4, b2idpiov4, a4, INF_APPROX)
 
         purityPiece2Est, purityPiece2Err = \
-            trPiece2(a2idpiov4, b2idpiov4, a4)
+            purityPiece2(a2idpiov4, b2idpiov4, a4)
 
         purityEst = purityPiece1Est + purityPiece2Est
         purityErr = np.sqrt(purityPiece1Err**2 + purityPiece2Err**2)
